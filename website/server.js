@@ -16,120 +16,85 @@ const connection = mysql.createConnection({
   user: 'root',
   password: '',
 //NOTE: change database name accordingly
-  database: 'lab_exercises'
+  database: 'uav'
 });
 
-// Connect to the MySQL database
-connection.connect(err => {
-  if (err) throw err;
-  console.log('Connected to the MySQL server');
-});
-// Serve the app.js file with content-type set to text/javascript
-app.get('/app.js', (req, res) => {
-  res.setHeader('Content-Type', 'text/javascript');
-  res.sendFile(path.join(__dirname, 'app.js'));
-});
-// Serve the style.css file with content-type set to text/css
-app.get('/style.css', (req, res) => {
-  res.setHeader('Content-Type', 'text/css');
-  res.sendFile(path.join(__dirname, 'style.css'));
-});
-// Serve the index.html file
-app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+// Serve the main HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 
 
 // Set up API routes
-app.get('/api/users', (req, res) => {
-  connection.query('SELECT * FROM users', (err, results) => {
+app.get('/sensor', (req, res) => {
+  connection.query('SELECT * FROM sensor', (err, results) => {
     if (err) {
       console.error('Error executing the database query: ', err);
       res.status(500).send('Error fetching users');
       return;
     }
 
-    const users = results.map(row => ({
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      age: row.age
+    const sensor = results.map(row => ({
+      id: row.Sensor_ID,
+      type: row.Sensor_Type,
+      datatype: row.Data_type,
+      status: row.Status
     }));
 
-    res.json(users);
+    res.json(sensor);
   });
 });
 
-app.post('/api/users', (req, res) => {
-  // Handle adding a new user to the database
-  const { name, email , age} = req.body;
-  const user = { name, email, age };
-  if (!name || !email || !age) {
-    return res.status(400).json({ error: "Name, email, and age are required." });
-  }
-
-  connection.query('INSERT INTO users SET ?', user, (err, result) => {
+app.get('/conclusion', (req, res) => {
+  connection.query('SELECT * FROM conclusion', (err, results) => {
     if (err) {
       console.error('Error executing the database query: ', err);
-      res.status(500).send('Error adding user');
+      res.status(500).send('Error fetching users');
       return;
     }
-  
-    const insertedUser = {
-      id: result.insertId,
-      name: user.name,
-      email: user.email,
-      age: user.age
-    };
-  
-    res.send(insertedUser);
+
+    const conclusion = results.map(row => ({
+      id: row.Conclusion_ID,
+      description: row.Case_description,
+    }));
+
+    res.json(conclusion);
   });
-  
 });
-
-app.put('/api/users/:id', (req, res) => {
-  const { name, email, age } = req.body;
-  const id = req.params.id;
-
-  if (!name || !email || !age) {
-    return res.status(400).json({ error: "Name, email, and age are required." });
-  }
-
-  connection.query('UPDATE users SET name = ?, email = ?, age = ? WHERE id = ?', [name, email, age, id], (err, result) => {
+// Route for fetching data from both 'datareport' and 'measurement' tables
+app.get('/data', (req, res) => {
+  const sql = `
+    SELECT datareport.datareport_id, measurement.raw_data, conclusion.case_description, measurement.time_captured
+    FROM datareport
+    JOIN measurement ON datareport.measurement_id = measurement.measurement_id
+    JOIN conclusion ON datareport.conclusion_id = conclusion.conclusion_id;
+  `;
+  connection.query(sql, (err, results) => {
     if (err) {
-      console.error('Error executing the database query: ', err);
-      return res.status(500).send('Error updating user');
+      console.error('Error fetching data from both tables:', err);
+      res.status(500).json({ error: 'Error fetching data from both tables' });
+      return;
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const data = results.map(row => ({
+      id: row.datareport_id,
+      data: row.raw_data,
+      conclusion: row.case_description,
+      time: row.time_captured
+    }));
 
-    res.json({ id, name, email, age });
+    res.json(data);
   });
 });
 
 
-app.delete('/api/users/:id', (req, res) => {
-  const id = req.params.id;
 
-  connection.query('DELETE FROM users WHERE id = ?', [id], (err, result) => {
-    if (err) {
-      console.error('Error executing the database query: ', err);
-      return res.status(500).send('Error deleting user');
-    }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    res.json({ id });
-  });
-});
-
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+const PORT = process.env.PORT || 3300;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
