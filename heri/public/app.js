@@ -87,13 +87,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      const tableBody = document.querySelector('table#cases tbody');
-      const newRowHTML = `
-        <tr>
-          <td>${inputValue}</td>
-        </tr>
-      `;
-      tableBody.insertAdjacentHTML('beforeend', newRowHTML);
+      fetch('/conclusion')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(conclusion => {
+        updateConclusionTable(conclusion);
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
       return response.json();
     })
     .then(data => {
@@ -105,7 +111,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-  
+  document.getElementById('del-cases-button').addEventListener('click', async function(event) {
+    // Prevent the default form submission behavior
+    event.preventDefault();
+    
+    try {
+        // Send a DELETE request to your server
+        const deleteResponse = await fetch('/casedel', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        if (!deleteResponse.ok) {
+            throw new Error('Failed to delete cases');
+        }
+
+        // Fetch conclusion data
+        const conclusionResponse = await fetch('/conclusion');
+        if (!conclusionResponse.ok) {
+            throw new Error('Failed to fetch conclusion');
+        }
+        
+        const conclusion = await conclusionResponse.json();
+        updateConclusionTable(conclusion);
+        console.log('Server response:', conclusion);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+});
+
   
 });
 

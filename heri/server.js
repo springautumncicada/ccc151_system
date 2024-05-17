@@ -14,7 +14,7 @@ const connection = mysql.createConnection({
 //host: 'localhost',
   host: '127.0.0.1',
   user: 'root',
-  password: '1234',
+  password: '',
 //NOTE: change database name accordingly
   database: 'uav'
 });
@@ -119,6 +119,35 @@ app.post('/caseadd', (req, res) => {
   // Log the received data
   console.log('Received input:', input);
 });
+
+app.delete('/casedel', (req, res) => {
+  
+  // Define the SQL query
+  const sql = `
+    DELETE FROM conclusion
+    WHERE conclusion_id = (
+    SELECT conclusion_id
+    FROM conclusion
+    ORDER BY conclusion_id DESC
+    LIMIT 1
+  );
+  `;
+  
+  // Execute the SQL query
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      // Send an error response to the client
+      return res.status(500).json({ error: 'Error inserting data into the database' });
+    }
+    
+    console.log('Data deleted successfully');
+    // Send a success response to the client
+    res.json({ message: 'Data deleted successfully' });
+  });
+
+});
+
 
 app.post('/adddatareport', (req, res) => {
   // Handle adding a new data report to the database
