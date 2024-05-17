@@ -41,15 +41,46 @@ document.addEventListener('DOMContentLoaded', () => {
   .catch(error => {
     console.error('Fetch error:', error);
   });
-  // Add event listeners for user actions (add, update, delete)
-  const addForm = document.querySelector('form#add-datareport-form');
 
-  addForm.addEventListener('submit', event => {
-    alert("Add DataReport");
+  document.getElementById('add-cases-button').addEventListener('click', function(event) {
+    // Prevent the default form submission behavior
     event.preventDefault();
-    addUser();
-    addForm.reset();
+  
+    // Get the value from the text field
+    const inputValue = document.getElementById('add-cases-desc').value;
+    
+    // Send a POST request to your server
+    fetch('/caseadd', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ input : inputValue }) // Assuming your server expects JSON data
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const tableBody = document.querySelector('table#cases tbody');
+      const newRowHTML = `
+        <tr>
+          <td>${inputValue}</td>
+        </tr>
+      `;
+      tableBody.insertAdjacentHTML('beforeend', newRowHTML);
+      return response.json();
+    })
+    .then(data => {
+      // Handle the response from the server
+      console.log('Server response:', data);
+    })
+    .catch(error => {
+      console.error('Error sending POST request:', error);
+    });
   });
+  
+  
+  
 });
 
 function updateSensorText() {
@@ -103,47 +134,5 @@ function updateConclusionTable(conclusion) {
     descriptionCell.textContent = cases.description;
     row.appendChild(descriptionCell);
     tableBody.appendChild(row);
-  });
-}
-  
-function updateUser(id, name, email, age) {
-  const userData = { name, email, age };
-  
-  fetch(`/api/users/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  })
-  .then(response => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      throw new Error('Failed to update user');
-    }
-  })
-  .then(user => {
-    console.log("Updated user: ", user);
-    alert(`User ${user.name} updated successfully`);
-    fetch('/api/users')
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('Failed to fetch users');
-      }
-    })
-    .then(users => {
-      updateTable(users);
-    })
-    .catch(error => {
-      console.error('Error fetching users: ', error);
-      alert('Failed to fetch users');
-    });
-  })
-  .catch(error => {
-    console.error(error);
-    alert('Failed to update user');
   });
 }

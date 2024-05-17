@@ -91,7 +91,34 @@ app.get('/data', (req, res) => {
   });
 });
 
+// Assuming you have already imported required libraries and established a connection to the database
 
+app.post('/caseadd', (req, res) => {
+  // Access the data sent from the client
+  const { input } = req.body;
+  
+  // Define the SQL query
+  const sql = `
+    INSERT INTO conclusion (case_description)
+    VALUES (?);
+  `;
+  
+  // Execute the SQL query
+  connection.query(sql, [input], (err, results) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      // Send an error response to the client
+      return res.status(500).json({ error: 'Error inserting data into the database' });
+    }
+    
+    console.log('Data inserted successfully');
+    // Send a success response to the client
+    res.json({ message: 'Data inserted successfully' });
+  });
+
+  // Log the received data
+  console.log('Received input:', input);
+});
 
 
 const PORT = process.env.PORT || 3300;
