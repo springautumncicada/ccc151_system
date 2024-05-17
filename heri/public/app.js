@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
   
     // Get the value from the text field
+    const textField = document.getElementById('add-cases-desc');
     const inputValue = document.getElementById('add-cases-desc').value;
     
     // Send a POST request to your server
@@ -109,6 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(error => {
       console.error('Error sending POST request:', error);
     });
+
+    textField.value = '';
   });
   
   document.getElementById('del-cases-button').addEventListener('click', async function(event) {
