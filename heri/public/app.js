@@ -117,36 +117,77 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('del-cases-button').addEventListener('click', async function(event) {
     // Prevent the default form submission behavior
     event.preventDefault();
-    
-    try {
-        // Send a DELETE request to your server
-        const deleteResponse = await fetch('/casedel', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
+    const textField = document.getElementById('add-cases-desc');
+    const inputValue = document.getElementById('add-cases-desc').value;
+    deleteCase(inputValue);
+    textField.value = '';
+    // try {
+    //     // Send a DELETE request to your server
+    //     const deleteResponse = await fetch('/casedel', {
+    //         method: 'DELETE',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //     });
 
-        if (!deleteResponse.ok) {
-            throw new Error('Failed to delete cases');
-        }
+    //     if (!deleteResponse.ok) {
+    //         throw new Error('Failed to delete cases');
+    //     }
 
-        // Fetch conclusion data
-        const conclusionResponse = await fetch('/conclusion');
-        if (!conclusionResponse.ok) {
-            throw new Error('Failed to fetch conclusion');
-        }
+    //     // Fetch conclusion data
+    //     const conclusionResponse = await fetch('/conclusion');
+    //     if (!conclusionResponse.ok) {
+    //         throw new Error('Failed to fetch conclusion');
+    //     }
         
-        const conclusion = await conclusionResponse.json();
-        updateConclusionTable(conclusion);
-        console.log('Server response:', conclusion);
-    } catch (error) {
-        console.error('Error:', error.message);
-    }
+    //     const conclusion = await conclusionResponse.json();
+    //     updateConclusionTable(conclusion);
+    //     console.log('Server response:', conclusion);
+    // } catch (error) {
+    //     console.error('Error:', error.message);
+    // }
 });
-
   
 });
+function deleteCase(id) {
+  fetch(`/casedel/${id}`, {
+    method: 'DELETE'
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error('Failed to delete user');
+    }
+  })
+  .then(result => {
+    if (result.id) {
+      fetch('/conclusion')
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch users');
+        }
+      })
+      .then(conclusions => {
+        updateConclusionTable(conclusions);
+      })
+      .catch(error => {
+        console.error('Error fetching users: ', error);
+        alert('Failed to fetch users');
+      });
+    } else {
+      throw new Error('Failed to delete user');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    alert('Failed to delete user');
+  });
+}
+
+
 
 function updateSensorText() {
 }

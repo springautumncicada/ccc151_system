@@ -14,7 +14,7 @@ const connection = mysql.createConnection({
 //host: 'localhost',
   host: '127.0.0.1',
   user: 'root',
-  password: '',
+  password: '1234',
 //NOTE: change database name accordingly
   database: 'uav'
 });
@@ -120,32 +120,21 @@ app.post('/caseadd', (req, res) => {
   console.log('Received input:', input);
 });
 
-app.delete('/casedel', (req, res) => {
-  
-  // Define the SQL query
-  const sql = `
-    DELETE FROM conclusion
-    WHERE conclusion_id = (
-    SELECT conclusion_id
-    FROM conclusion
-    ORDER BY conclusion_id DESC
-    LIMIT 1
-  );
-  `;
-  
-  // Execute the SQL query
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error inserting data:', err);
-      // Send an error response to the client
-      return res.status(500).json({ error: 'Error inserting data into the database' });
-    }
-    
-    console.log('Data deleted successfully');
-    // Send a success response to the client
-    res.json({ message: 'Data deleted successfully' });
-  });
+app.delete('/casedel/:id', (req, res) => {
+  const id = req.params.id;
 
+  connection.query('DELETE FROM conclusion WHERE conclusion_id = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Error executing the database query: ', err);
+      return res.status(500).send('Error deleting user');
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.json({ id });
+  });
 });
 
 
