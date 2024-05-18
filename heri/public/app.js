@@ -236,8 +236,11 @@ function updateConclusionTable(conclusion) {
   
   conclusion.forEach(cases => {
     const row = document.createElement('tr');
+    const idCell = document.createElement('td');
+    idCell.textContent = cases.id;
     const descriptionCell = document.createElement('td');
     descriptionCell.textContent = cases.description;
+    row.appendChild(idCell);
     row.appendChild(descriptionCell);
     tableBody.appendChild(row);
   });
