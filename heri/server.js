@@ -71,7 +71,8 @@ app.get('/data', (req, res) => {
     SELECT datareport.datareport_id, measurement.raw_data, conclusion.case_description, measurement.time_captured
     FROM datareport
     JOIN measurement ON datareport.measurement_id = measurement.measurement_id
-    JOIN conclusion ON datareport.conclusion_id = conclusion.conclusion_id;
+    JOIN conclusion ON datareport.conclusion_id = conclusion.conclusion_id
+    ORDER BY datareport.datareport_id ASC;
   `;
   connection.query(sql, (err, results) => {
     if (err) {
@@ -90,6 +91,7 @@ app.get('/data', (req, res) => {
     res.json(data);
   });
 });
+
 
 // Assuming you have already imported required libraries and established a connection to the database
 

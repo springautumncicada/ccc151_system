@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteForm = document.querySelector('form#delete-datareport-form');
   const updateForm = document.querySelector('form#update-datareport-form');
   addForm.addEventListener('submit', event => {
-    alert("Add form");
+    // alert("Add form");
     event.preventDefault();
     adddatareport();
     addForm.reset();
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteForm.reset();
   });
   updateForm.addEventListener('submit', event => {
-    alert("Update form");
+    // alert("Update form");
     event.preventDefault();
     const id = updateForm.elements['updatedatareport-id'].value;
     const measurement_id = updateForm.elements['updatemeasurement-id'].value;
@@ -157,7 +157,7 @@ function deleteCase(id) {
     if (response.ok) {
       return response.json();
     } else {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete datareport');
     }
   })
   .then(result => {
@@ -167,23 +167,23 @@ function deleteCase(id) {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to fetch users');
+          throw new Error('Failed to fetch datareports');
         }
       })
       .then(conclusions => {
         updateConclusionTable(conclusions);
       })
       .catch(error => {
-        console.error('Error fetching users: ', error);
-        alert('Failed to fetch users');
+        console.error('Error fetching datareports: ', error);
+        alert('Failed to fetch datareports');
       });
     } else {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete datareport');
     }
   })
   .catch(error => {
     console.error(error);
-    alert('Failed to delete user');
+    alert('Failed to delete datareport');
   });
 }
 
@@ -191,7 +191,7 @@ function deleteCase(id) {
 
 function updateSensorText() {
 }
-// Update the table with the fetched users
+// Update the table with the fetched datareports
 function updateSensorTable(sensordata) {
   console.log('Received data:', sensordata);
   const tableBody = document.querySelector('table#sensor-stats tbody');
@@ -249,7 +249,7 @@ function updateConclusionTable(conclusion) {
 function adddatareport() {
   const measurement_id = document.getElementById('measurement-id').value;
   const conclusion_id = document.getElementById('conclusion-id').value;
-  const userData = { measurement_id, conclusion_id };
+  const datareportData = { measurement_id, conclusion_id };
 
   if (!measurement_id || !conclusion_id) {
     alert('Please fill in all required fields.');
@@ -261,7 +261,7 @@ function adddatareport() {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData),
+    body: JSON.stringify(datareportData),
   })
   .then(response => {
     if (response.ok) {
@@ -272,7 +272,7 @@ function adddatareport() {
   })
   .then(datareport => {
     console.log("Added data report: ", datareport);
-    alert(`Data Report ${datareport.id} added successfully`);
+    // alert(`Data Report ${datareport.id} added successfully`);
 
     // Fetch updated data reports from the correct endpoint
     return fetch('/data');
@@ -301,7 +301,7 @@ function deleteDataReport(id) {
     if (response.ok) {
       return response.json();
     } else {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete datareport');
     }
   })
   .then(result => {
@@ -311,64 +311,64 @@ function deleteDataReport(id) {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to fetch users');
+          throw new Error('Failed to fetch datareports');
         }
       })
       .then(datareports => {
         updateDatareportTable(datareports);
       })
       .catch(error => {
-        console.error('Error fetching users: ', error);
-        alert('Failed to fetch users');
+        console.error('Error fetching datareports: ', error);
+        alert('Failed to fetch datareports');
       });
     } else {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete datareport');
     }
   })
   .catch(error => {
     console.error(error);
-    alert('Failed to delete user');
+    alert('Failed to delete datareport');
   });
 }
 
 function updateData(id, measurement_id, conclusion_id) {
-  const userData = { measurement_id, conclusion_id};
+  const datareportData = { measurement_id, conclusion_id};
   
   fetch(`/updatedata/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData),
+    body: JSON.stringify(datareportData),
   })
   .then(response => {
     if (response.ok) {
       return response.json();
     } else {
-      throw new Error('Failed to update user');
+      throw new Error('Failed to update datareport');
     }
   })
-  .then(user => {
-    console.log("Updated user: ", user);
-    alert(`User ${user.measurement_id} updated successfully`);
+  .then(datareport => {
+    console.log("Updated datareport: ", datareport);
+    // alert(`datareport ${datareport.measurement_id} updated successfully`);
     fetch('/data')
     .then(response => {
       if (response.ok) {
         return response.json();
       } else {
-        throw new Error('Failed to fetch users');
+        throw new Error('Failed to fetch datareports');
       }
     })
     .then(datareports => {
       updateDatareportTable(datareports);
     })
     .catch(error => {
-      console.error('Error fetching users: ', error);
-      alert('Failed to fetch users');
+      console.error('Error fetching datareports: ', error);
+      alert('Failed to fetch datareports');
     });
   })
   .catch(error => {
     console.error(error);
-    alert('Failed to update user');
+    alert('Failed to update datareport');
   });
 }
